@@ -3,4 +3,4 @@ Data aggregation service of football matches statistics
 
 ## Authors
 
-- filipslezaklabs@gmail.com
+- filipslezaklab@gmail.com
