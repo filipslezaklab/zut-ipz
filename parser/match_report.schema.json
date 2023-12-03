@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+      "meta": {
+          "type": "object",
+          "properties": {
+              "stadium": {
+                  "type": "string"
+              },
+              "date": {
+                  "type": "integer"
+              },
+              "duration": {
+                  "type": "number"
+              },
+              "playtime": {
+                  "type": "number"
+              },
+              "playtime_1st": {
+                  "type": "number"
+              },
+              "playtime_2nd": {
+                  "type": "number"
+              }
+          },
+          "required": [
+              "stadium",
+              "date",
+              "duration",
+              "playtime",
+              "playtime_1st",
+              "playtime_2nd"
+          ]
+      },
+      "summary": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+              "type": "object",
+              "properties": {
+                  "team_name": {
+                      "type": "string"
+                  },
+                  "goals": {
+                      "type": "integer"
+                  },
+                  "possession": {
+                      "type": "number"
+                  },
+                  "net_poss_time_1st": {
+                      "type": "number"
+                  },
+                  "net_poss_time_2nd": {
+                      "type": "number"
+                  },
+                  "distance": {
+                      "type": "number"
+                  },
+                  "sprints": {
+                      "type": "integer"
+                  },
+                  "high_speed_runs": {
+                      "type": "integer"
+                  },
+                  "sprint_distance": {
+                      "type": "number"
+                  },
+                  "top_speed": {
+                      "type": "number"
+                  },
+                  "top_speed_player": {
+                      "type": "string"
+                  },
+                  "max_distance": {
+                      "type": "number"
+                  },
+                  "max_distance_player": {
+                      "type": "string"
+                  },
+                  "max_sprints": {
+                      "type": "integer"
+                  },
+                  "max_sprints_player": {
+                      "type": "string"
+                  }
+              },
+              "required": [
+                  "team_name",
+                  "goals",
+                  "possession",
+                  "net_poss_time_1st",
+                  "net_poss_time_2nd",
+                  "distance",
+                  "sprints",
+                  "high_speed_runs",
+                  "sprint_distance",
+                  "top_speed",
+                  "top_speed_player",
+                  "max_distance",
+                  "max_distance_player",
+                  "max_sprints",
+                  "max_sprints_player"
+              ]
+          }
+      },
+      "physical_overview": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+              "type": "object",
+              "properties": {
+                  "team_name": {
+                      "type": "string"
+                  },
+                  "players": {
+                      "type": "array",
+                      "items": {
+                          "type": "object",
+                          "properties": {
+                              "player_name": {
+                                  "type": "string"
+                              },
+                              "seconds_played": {
+                                  "type": "integer"
+                              },
+                              "total_distance": {
+                                  "type": "number"
+                              },
+                              "top_speed": {
+                                  "type": "number"
+                              },
+                              "avg_speed": {
+                                  "type": "number"
+                              },
+                              "high_intensity_activity": {
+                                  "type": "integer"
+                              },
+                              "sprints_dist": {
+                                  "type": "number"
+                              },
+                              "sprints_no": {
+                                  "type": "integer"
+                              },
+                              "hsr_dist": {
+                                  "type": "number"
+                              },
+                              "hst_no": {
+                                  "type": "integer"
+                              },
+                              "distance_4": {
+                                  "type": "number"
+                              },
+                              "distance_3": {
+                                  "type": "number"
+                              },
+                              "distance_2": {
+                                  "type": "number"
+                              },
+                              "distance_1": {
+                                  "type": "number"
+                              }
+                          },
+                          "required": [
+                              "player_name",
+                              "seconds_played",
+                              "total_distance",
+                              "top_speed",
+                              "avg_speed",
+                              "high_intensity_activity",
+                              "sprints_dist",
+                              "sprints_no",
+                              "hsr_dist",
+                              "hst_no",
+                              "distance_4",
+                              "distance_3",
+                              "distance_2",
+                              "distance_1"
+                          ]
+                      }
+                  }
+              },
+              "required": [
+                  "team_name",
+                  "players"
+              ]
+          }
+      }
+  },
+  "required": [
+      "meta",
+      "summary",
+      "physical_overview"
+  ]
+}
