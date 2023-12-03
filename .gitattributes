@@ -1,0 +1,21 @@
+* text eol=lf
+
+*.md text
+*.py text
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.txt text
+*.yaml text
+*.yml text
+*.json text
+*.rs text
+*.toml text
+*.ini text
+
+*.png binary
+*.jpg binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
