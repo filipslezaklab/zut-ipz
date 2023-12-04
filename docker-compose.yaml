@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+
+  db:
+    image: mongo:7-jammy
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ipz
+      MONGO_INITDB_ROOT_PASSWORD: ipz
+      MONGO_INITDB_DATABASE: ipz
+    ports:
+      - "27017:27017"

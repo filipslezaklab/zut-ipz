@@ -1,1 +1,0 @@
-# IPZ Project Backend service
