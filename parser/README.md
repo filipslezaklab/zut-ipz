@@ -15,9 +15,9 @@ python3 -m venv venv
 ##### #TODO:
 - switch from `pip` and `venv` to `poetry`
 - fix regexes
-- fix output types
-- parse pages 2 and 3
+- ~~fix output types~~
+- ~~parse pages 2 and 3~~
 - adhere to schema
-- testing (?)
+- testing
 
-schema in `match_report.schema.json` should be _semi-final_
+schema in `matchreport.schema.json` should be _final_

@@ -1,19 +1,80 @@
 import PyPDF2, re, datetime
 from matchreport import MatchReport
+from typing import Tuple, List, Dict
+import pandas as pd
 
 ALLOW_MISSING = True
 
-def match_report_from_pdf(
-    file_name:str,
-  )->'MatchReport':
+RE_TIME = "\d*:?\d*:\d\d"
+RE_NUMBER = "\d+\.?\d+"
+RE_DATETIME = "\d{4}-\d{2}-\d{2}, \d{2}:\d{2}"
+
+def str_time_to_seconds(s:str)->int:
+  '''
+  turns string formated as \
+  `'hh:mm:ss'`/`'mm:ss'`/`'ss'` \
+  into number of seconds \
+  '''
+  out = 0
+  for i,v in enumerate(s.split(":")[::-1]):
+    out += int(v) * ( 60**i )
+  return out
+
+def physical_overview_from_page(
+    page_txt:str
+  )->'pd.DataFrame':
+  RE_PLAYER_ROW = "".join(
+    ["\n" , "[^\n]+", RE_TIME ] + 
+    ["\n" + "[^\n]+" ] * 12
+  )
+  columns=[
+    "player_name",
+    "seconds_played",
+    "total_distance",
+    "top_speed",
+    "avg_speed",
+    "high_intensity_activity",
+    "sprints_dist",
+    "sprints_no",
+    "hsr_dist",
+    "hst_no",
+    "distance_4",
+    "distance_3",
+    "distance_2",
+    "distance_1",
+  ]
+  data = []
+  for player_row in re.findall(RE_PLAYER_ROW,page_txt):
+    r = player_row.split("\n")
+    m = re.search(RE_TIME,r[1])
+    r[0] = r[1][:m.span()[0]]
+    r[1] = r[1][m.span()[0]:]
+    data += [dict(zip(columns,r))]
+  data = pd.DataFrame(data)
+  data[data=="None"]=0
+  data["seconds_played"] = data["seconds_played"].map(str_time_to_seconds)
+
+  columns_numeric = [
+    "total_distance", "top_speed"  ,"avg_speed"  ,
+    "sprints_dist"  , "hsr_dist"   ,"distance_4" ,
+    "distance_3"    , "distance_2" ,"distance_1" ,
+  ]
+  data[columns_numeric] = data[columns_numeric].astype(float)
+
+  columns_int = [
+    "seconds_played","high_intensity_activity","sprints_no","hst_no"
+  ]
+  data[columns_int] = data[columns_int].astype(int)
+
+  return data
   
-  pdf = PyPDF2.PdfReader(file_name)
-  pg1 = pdf.pages[0]
-  pg0_txt = pg1.extract_text()
+
+def summary_from_page(
+    pg0_txt:str
+  )->Tuple[Dict,Dict]:
 
   m = re.search(
-    "\d{4}-\d{2}-\d{2}, \d{2}:\d{2}",
-    pg0_txt,
+    RE_DATETIME, pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
     match_date = pg0_txt[
@@ -27,16 +88,20 @@ def match_report_from_pdf(
 
 
   m = re.search(
-    "\n.*NET PLAYING TIME.*\n",
+    "\n[^\n]*NET PLAYING TIME[^\n]*\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
     playing_time = pg0_txt[
       m.span()[0]+1:m.span()[1]-1
     ]
-    [playing_time , playing_time_net,
-    playing_time_1st, playing_time_2nd] = re.findall(
-      "\d*:?\d+:\d+",playing_time
+    [
+      playing_time ,
+      playing_time_net,
+      playing_time_1st,
+      playing_time_2nd
+    ] = re.findall(
+      RE_TIME,playing_time
     )
     # TODO str->seconds
   else:
@@ -46,7 +111,7 @@ def match_report_from_pdf(
     playing_time_2nd = None
 
   m = re.search(
-    "\n.*\n\d{4}-\d{2}-\d{2}, \d{2}:\d{2}",
+    "\n[^\n]*\n" + RE_DATETIME,
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -58,7 +123,7 @@ def match_report_from_pdf(
     stadium = stadium
 
   m = re.search(
-    "\n.*\nv\n.*\n",
+    "\n[^\n]*\nv\n[^\n]*\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -101,9 +166,9 @@ def match_report_from_pdf(
 
 
   m = re.search(
-    "\n\s*[\d?\d:?]+ \(.*\)"+
+    "\n\s*[\d?\d:?]+ \([^\n]*\)"+
     "\n\s*NET POSS\. TIME"+
-    "\n\s*[\d?\d:?]+ \(.*\)\n",
+    "\n\s*[\d?\d:?]+ \([^\n]*\)\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -127,7 +192,7 @@ def match_report_from_pdf(
 
 
   m = re.search(
-    "\n\d+.\d\dm\nDISTANCE\n\d+.\d\dm\n",
+    "\n\d+.\d+m\nDISTANCE\n\d+.\d+m\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -191,7 +256,7 @@ def match_report_from_pdf(
 
 
   m = re.search(
-    "\n.* \(\d+\.\d+km/h\)\nTOP SPEED\n.* \(\d+\.\d+km/h\)\n",
+    "\n[^\n]* \(\d+\.\d+km/h\)\nTOP SPEED\n[^\n]* \(\d+\.\d+km/h\)\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -211,7 +276,7 @@ def match_report_from_pdf(
     top_speed2        = None
 
   m = re.search(
-    "\n.* \(\d+\.\d+m\)\nMAX DISTANCE\n.* \(\d+\.\d+m\)\n",
+    "\n[^\n]* \(\d+\.\d+m\)\nMAX DISTANCE\n[^\n]* \(\d+\.\d+m\)\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -234,7 +299,7 @@ def match_report_from_pdf(
 
 
   m = re.search(
-    "\n.* \(\d+\)\s*MAX SPRINTS\s*.* \(\d+\)\n",
+    "\n[^\n]* \(\d+\)\s*MAX SPRINTS\s*[^\n]* \(\d+\)\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
@@ -254,16 +319,14 @@ def match_report_from_pdf(
     max_sprints_player2  = None
     max_sprints1         = None
     max_sprints2         = None
-
-  out = MatchReport()
   
-  out.summary.loc[0]={
+  summary = [{
     "team_name"           : team1,
     "goals"               : goals1 ,
     "possession"          : possession1 ,
-    "net_poss_time"       : net_poss_time1 ,
-    "net_poss_time_1st"   : net_poss_time_1st1 ,
-    "net_poss_time_2nd"   : net_poss_time_2nd1 ,
+    "net_poss_time"       : str_time_to_seconds(net_poss_time1) ,
+    "net_poss_time_1st"   : str_time_to_seconds(net_poss_time_1st1) ,
+    "net_poss_time_2nd"   : str_time_to_seconds(net_poss_time_2nd1) ,
     "distance"            : distance1 ,
     "sprints"             : sprints1 ,
     "high_speed_runs"     : high_speed_runs1 ,
@@ -274,15 +337,14 @@ def match_report_from_pdf(
     "max_distance_player" : max_distance_player1 ,
     "max_sprints"         : max_sprints1 ,
     "max_sprints_player"  : max_sprints_player1 ,
-  }
-
-  out.summary.loc[1]={
+  },
+  {
     "team_name"           : team2,
     "goals"               : goals2 ,
     "possession"          : possession2 ,
-    "net_poss_time"       : net_poss_time2 ,
-    "net_poss_time_1st"   : net_poss_time_1st2 ,
-    "net_poss_time_2nd"   : net_poss_time_2nd2 ,
+    "net_poss_time"       : str_time_to_seconds(net_poss_time2) ,
+    "net_poss_time_1st"   : str_time_to_seconds(net_poss_time_1st2) ,
+    "net_poss_time_2nd"   : str_time_to_seconds(net_poss_time_2nd2) ,
     "distance"            : distance2 ,
     "sprints"             : sprints2 ,
     "high_speed_runs"     : high_speed_runs2 ,
@@ -293,15 +355,37 @@ def match_report_from_pdf(
     "max_distance_player" : max_distance_player2 ,
     "max_sprints"         : max_sprints2 ,
     "max_sprints_player"  : max_sprints_player2 ,
-  }
+  }]
+  summary = pd.DataFrame(summary)
 
-  out.meta.loc[0]={
+  meta = [{
       "date"              : match_date,
       "stadium"           : stadium,
-      "duration"          : playing_time,
-      "net_play_time"     : playing_time_net,
-      "duration_1st" : playing_time_1st,
-      "duration_2nd" : playing_time_2nd,
-  }
+      "duration"          : str_time_to_seconds(playing_time),
+      "playtime"          : str_time_to_seconds(playing_time_net),
+      "playtime_1st"      : str_time_to_seconds(playing_time_1st),
+      "playtime_2nd"      : str_time_to_seconds(playing_time_2nd),
+  }]
+  meta = pd.DataFrame(meta)
+
+  return summary , meta
+
+
+def match_report_from_pdf(
+    file_name:str,
+  )->'MatchReport':
+  
+  pdf = PyPDF2.PdfReader(file_name)
+  
+  pg0_txt = pdf.pages[0].extract_text()
+  pg1_txt = pdf.pages[1].extract_text()
+  pg2_txt = pdf.pages[2].extract_text()
+
+  out = MatchReport()
+  out.summary, out.meta = summary_from_page(pg0_txt)
+  out.physical_overview[0]["players"] = physical_overview_from_page(pg1_txt)
+  out.physical_overview[1]["players"] = physical_overview_from_page(pg2_txt)
+  out.physical_overview[0]["team_name"] = out.summary.loc[0]["team_name"]
+  out.physical_overview[1]["team_name"] = out.summary.loc[1]["team_name"]
 
   return out
