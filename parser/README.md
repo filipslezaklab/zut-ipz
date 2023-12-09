@@ -18,6 +18,16 @@ python3 -m venv venv
 - ~~fix output types~~
 - ~~parse pages 2 and 3~~
 - adhere to schema
-- testing
+- ~~testing~~
+
+#### Test Results
+```
+found 824 .pdf files to test! running tests...
+----------------------------------------------
+ status  cnt                    message  percent
+      0  416                        ok! 0.504854
+      1  140              failed parse! 0.169903
+      2  268 parsed, failed validation! 0.325243
+```
 
 schema in `matchreport.schema.json` should be _final_

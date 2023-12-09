@@ -260,15 +260,16 @@ def summary_from_page(
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
-    top_speed1,_,top_speed2 = pg0_txt[
+    top_speed1_full,_,top_speed2_full = pg0_txt[
       m.span()[0]+1:m.span()[1]-1
     ].split("\n")
-    top_speed_player1, top_speed1 = top_speed1.split("(")
-    top_speed_player2, top_speed2 = top_speed2.split("(")
-    top_speed_player1 = top_speed_player1.strip()
-    top_speed_player2 = top_speed_player2.strip()
-    top_speed1 = float(top_speed1[:-5])
-    top_speed2 = float(top_speed2[:-5])
+    top_speed1 = re.findall("\([^()]*\)",top_speed1_full)[-1]
+    top_speed_player1 = top_speed1_full[:-len(top_speed1)].strip()
+    top_speed1 = float(top_speed1[1:-1].replace("km/h",""))
+
+    top_speed2 = re.findall("\([^()]*\)",top_speed2_full)[-1]
+    top_speed_player2 = top_speed1_full[:-len(top_speed2)].strip()
+    top_speed2 = float(top_speed2[1:-1].replace("km/h",""))
   else:
     top_speed_player1 = None
     top_speed_player2 = None
