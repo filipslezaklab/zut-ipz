@@ -260,15 +260,15 @@ def summary_from_page(
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
-    top_speed1_full,_,top_speed2_full = pg0_txt[
+    top_speed_full1,_,top_speed_full2 = pg0_txt[
       m.span()[0]+1:m.span()[1]-1
     ].split("\n")
-    top_speed1 = re.findall("\([^()]*\)",top_speed1_full)[-1]
-    top_speed_player1 = top_speed1_full[:-len(top_speed1)].strip()
+    top_speed1 = re.findall("\([^()]*\)",top_speed_full1)[-1]
+    top_speed_player1 = top_speed_full1[:-len(top_speed1)].strip()
     top_speed1 = float(top_speed1[1:-1].replace("km/h",""))
 
-    top_speed2 = re.findall("\([^()]*\)",top_speed2_full)[-1]
-    top_speed_player2 = top_speed1_full[:-len(top_speed2)].strip()
+    top_speed2 = re.findall("\([^()]*\)",top_speed_full2)[-1]
+    top_speed_player2 = top_speed_full2[:-len(top_speed2)].strip()
     top_speed2 = float(top_speed2[1:-1].replace("km/h",""))
   else:
     top_speed_player1 = None
@@ -277,19 +277,20 @@ def summary_from_page(
     top_speed2        = None
 
   m = re.search(
-    "\n[^\n]* \(\d+\.\d+m\)\nMAX DISTANCE\n[^\n]* \(\d+\.\d+m\)\n",
+    "\n[^\n]*\n\s*MAX DISTANCE\s*\n[^\n]*\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
-    max_distance1,_,max_distance2 = pg0_txt[
+    max_distance_full1,_,max_distance_full2 = pg0_txt[
       m.span()[0]+1:m.span()[1]-1
     ].split("\n")
-    max_distance_player1, max_distance1 = max_distance1.split("(")
-    max_distance_player2, max_distance2 = max_distance2.split("(")
-    max_distance_player1 = max_distance_player1.strip()
-    max_distance_player2 = max_distance_player2.strip()
-    max_distance1 = float(max_distance1[:-2])
-    max_distance2 = float(max_distance2[:-2])
+    max_distance1 = re.findall("\([^()]*\)",max_distance_full1)[-1]
+    max_distance_player1 = max_distance_full1[:-len(max_distance1)].strip()
+    max_distance1 = float(max_distance1[1:-1].replace("m",""))
+    
+    max_distance2 = re.findall("\([^()]*\)",max_distance_full2)[-1]
+    max_distance_player2 = max_distance_full2[:-len(max_distance2)].strip()
+    max_distance2 = float(max_distance2[1:-1].replace("m",""))
   else:
     max_distance_player1 = None
     max_distance_player2 = None
@@ -300,19 +301,20 @@ def summary_from_page(
 
 
   m = re.search(
-    "\n[^\n]* \(\d+\)\s*MAX SPRINTS\s*[^\n]* \(\d+\)\n",
+    "\n[^\n]*\n\s*MAX SPRINTS\s*\n[^\n]*\n",
     pg0_txt,
   )
   if m is not None and ALLOW_MISSING:
-    max_sprints1,_,max_sprints2 = pg0_txt[
+    max_sprints_full1,_,max_sprints_full2 = pg0_txt[
       m.span()[0]+1:m.span()[1]-1
     ].split("\n")
-    max_sprints_player1, max_sprints1 = max_sprints1.split("(")
-    max_sprints_player2, max_sprints2 = max_sprints2.split("(")
-    max_sprints_player1 = max_sprints_player1.strip()
-    max_sprints_player2 = max_sprints_player2.strip()
-    max_sprints1 = int(max_sprints1[:-1])
-    max_sprints2 = int(max_sprints2[:-1])
+    max_sprints1 = re.findall("\([^()]*\)",max_sprints_full1)[-1]
+    max_sprints_player1 = max_sprints_full1[:-len(max_sprints1)].strip()
+    max_sprints1 = int(max_sprints1[1:-1])
+
+    max_sprints2 = re.findall("\([^()]*\)",max_sprints_full2)[-1]
+    max_sprints_player2 = max_sprints_full2[:-len(max_sprints2)].strip()
+    max_sprints2 = int(max_sprints2[1:-1])
   else:
     max_sprints_player1  = None
     max_sprints_player2  = None

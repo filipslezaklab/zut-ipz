@@ -25,9 +25,9 @@ python3 -m venv venv
 found 824 .pdf files to test! running tests...
 ----------------------------------------------
  status  cnt                    message  percent
-      0  416                        ok! 0.504854
-      1  140              failed parse! 0.169903
-      2  268 parsed, failed validation! 0.325243
+      0  622                        ok! 0.754854
+      1   17              failed parse! 0.020631
+      2  185 parsed, failed validation! 0.224515
 ```
 
 schema in `matchreport.schema.json` should be _final_
